@@ -1,8 +1,9 @@
+import time
 from packaging.version import Version
 
 from konradtechnologies_rtms.communication import base_communication, scpi_communication
 from konradtechnologies_rtms.enum_types import *
-from konradtechnologies_rtms.target import RadarTarget
+from konradtechnologies_rtms.target import RadarTarget, DynamicRadarTarget
 
 
 class RtmsClient(object):
@@ -88,6 +89,68 @@ class RtmsClient(object):
         :type targets: list[RadarTarget]
         """
         self.communication.set_radar_targets(targets)
+
+    def set_dynamic_range_targets(self, dynamic_targets, time_interval=0.1):
+        """
+        Executes a dynamic target script.  Note that the timing of execution is handled solely by Python.  As such,
+        jitter and latency may occur.  If precise timing is required, this function should not be used.
+
+        :param dynamic_targets: A list of dynamic targets to execute.  The outer list is for each simulated object.
+            The inner list is a set of dynamic targets to execute, one after another.
+        :type dynamic_targets: list[list[DynamicRadarTarget]]
+        :param time_interval: The interval of time to determine individual Radar Target points, in sec.
+        :type time_interval: float
+        """
+        individual_points = list()
+        number_targets = len(dynamic_targets)
+        target_list = list()
+
+        target_number = 0
+        max_length = 0
+
+        # Loop through each target which was sent
+        for object_dynamic_targets in dynamic_targets:
+            # Create an empty list object that will be populated below
+            individual_points.append(list())
+            # The target list is used during the timed loop, initializing with a default RadarTarget object
+            target_list.append(RadarTarget())
+
+            # Loop through each dynamic target sent
+            for dynamic_target in object_dynamic_targets:
+                individual_points[target_number].extend(dynamic_target.get_target_points(time_interval=time_interval))
+
+            # Keep track if this list is the longest object list
+            if len(individual_points[target_number]) > max_length:
+                max_length = len(individual_points[target_number])
+
+            # Increment target number
+            target_number = target_number + 1
+
+        last_time = time.time()
+        for i in range(0, max_length):
+            # Get individual targets
+
+            for target_number in range(0, number_targets):
+                # Try to find the individual point for this specific time instance.  if the index is out of range,
+                # that means that target is done (but another target is still going).  Just hold the last value.
+                try:
+                    target_list[target_number] = individual_points[target_number][i]
+                except IndexError:
+                    # Keep the last target point, but change velocity to zero since that target is now stationary
+                    target_list[target_number].velocity = 0
+                    pass
+
+            self.set_radar_targets(target_list)
+            # Sleep until the next iteration
+            time_to_sleep = time_interval - (time.time() - last_time)
+            if time_to_sleep > 0:
+                time.sleep(time_to_sleep)
+            last_time = time.time()
+
+        # Set all targets as static objects now that the script is complete
+        for target_number in range(0, number_targets):
+            target_list[target_number].velocity = 0
+        self.set_radar_targets(target_list)
 
     def get_radar_targets(self):
         """
