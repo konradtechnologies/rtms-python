@@ -50,6 +50,8 @@ dynamic linear targets.
     # Send the targets to RTMS
     rtms_client.set_dynamic_range_targets([moving_target_1, moving_target_2])
 
+Note that since this script is executed by Python (and not by the KT-RTMS software), it may expirience
+jitter and latency, especially if other applications are running simultaneously.
 
 ### Taking RF Measurements
 If the KT-RTMS RF Measurements plug-in is activated on the system, one can take RF measurements.  This is typically
