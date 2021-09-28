@@ -24,8 +24,8 @@ The rtms-python package provides an overall class for communication to KT-RTMS, 
     # Disconnect from the instrument
     rtms_client.disconnect()
 
-### Creating Radar Targets
-Radar targets can be defined using the `RadarTarget` class and sent to the instrument
+### Static Radar Targets
+Static radar targets can be defined using the `RadarTarget` class and sent to the instrument.
 
     # Create two radar targets
     target_list = [RadarTarget(distance=35, rcs=15, velocity=0, azimuth=0, elevation=0),
@@ -33,6 +33,23 @@ Radar targets can be defined using the `RadarTarget` class and sent to the instr
 
     # Send the targets to RTMS
     rtms_client.set_radar_targets(target_list)
+
+### Dynamic Radar Targets
+Dynamic radar targets can be defined using the `DynamicRadarTarget` class and executed by the Python script.
+In this configuration, Python sends a new set of targets to the instrument every 100 msec.  This can achieve psuedo-
+dynamic linear targets.
+
+    # Create two dynamic targets
+    # The first target will move out from 20 m to 80 m at 10 m/sec, then back to 40 m at 20 m/sec.
+    moving_target_1 = [DynamicRadarTarget(start_x=0, start_y=20, end_x=0, end_y=80, rcs=30, velocity=10),
+                       DynamicRadarTarget(start_x=0, start_y=80, end_x=0, end_y=40, rcs=30, velocity=20)]
+
+    # The second target will move from 100 m to 120 m at 5 m/sec.
+    moving_target_2 = [DynamicRadarTarget(start_x=0, start_y=100, end_x=0, end_y=120, rcs=30, velocity=5)]
+
+    # Send the targets to RTMS
+    rtms_client.set_dynamic_range_targets([moving_target_1, moving_target_2])
+
 
 ### Taking RF Measurements
 If the KT-RTMS RF Measurements plug-in is activated on the system, one can take RF measurements.  This is typically
