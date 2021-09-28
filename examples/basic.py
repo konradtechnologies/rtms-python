@@ -48,8 +48,6 @@ def main():
 
     basic_example(ip_address)
     # target_example(ip_address)
-    # measurement_example_basic(ip_address)
-    # measurement_example_advanced(ip_address)
 
 
 if __name__ == "__main__":
