@@ -86,6 +86,7 @@ class DynamicRadarTarget(object):
         velocity_x = distance_x * factor
         velocity_y = distance_y * factor
         velocity_z = distance_z * factor
+        velocity_vector = np.array([velocity_x, velocity_y, velocity_z])
 
         for time_msec in range(0, int(time_between_points * 1000), int(time_interval * 1000)):
             time_sec = time_msec / 1000
@@ -94,16 +95,24 @@ class DynamicRadarTarget(object):
             point_x = self.start_x + (velocity_x * time_sec)
             point_y = self.start_y + (velocity_y * time_sec)
             point_z = self.start_z + (velocity_z * time_sec)
+            radial_vector = np.array([-point_x, -point_y, -point_z])
 
             # Convert to euclidean geometry
             point_distance = np.sqrt(np.square(point_x)+np.square(point_y)+np.square(point_z))
             point_azimuth = np.arctan(point_x/point_y) * 180 / np.pi
             point_elevation = np.arctan(point_z/point_y) * 180 / np.pi
 
+            # Calculate the angle between the velocity vector and the radial vector (to determine radial velocity)
+            vector_dot_product = velocity_vector.dot(radial_vector)
+            vector_norms = np.linalg.norm(velocity_vector) * np.linalg.norm(radial_vector)
+            radial_vector_angle_radians = np.arccos(vector_dot_product / vector_norms)
+
+            radial_velocity = np.linalg.norm(velocity_vector) * np.cos(radial_vector_angle_radians)
+
             # Create the radar target for the point (make velocity sign indicate + is coming towards sensor)
             point_radar_target = RadarTarget(distance=point_distance,
                                              rcs=self.rcs,
-                                             velocity=-velocity_y,
+                                             velocity=radial_velocity,
                                              azimuth=point_azimuth,
                                              elevation=point_elevation)
 
