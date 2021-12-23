@@ -94,7 +94,7 @@ class RtmsScpiCommunication(base_communication.RtmsBaseCommunication):
                 if self.rtms_version >= Version('3.0.0b3'):
                     self._query_and_check_response("SYSTEM:SETUP:BANDWIDTH {}".format(value))
                 else:
-                    raise KeyError('Invalid keyword argument: "{}"\n'
+                    raise KeyError('Invalid keyword argument: "{}" - '
                                    'The bandwidth property is only valid in KT-RTMS versions 3.0.0b3 and later'
                                    .format(key))
             elif key == 'sensor_eirp':
