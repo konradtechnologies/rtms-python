@@ -89,6 +89,14 @@ class RtmsScpiCommunication(base_communication.RtmsBaseCommunication):
                 self._query_and_check_response("SYSTEM:SETUP:ANTGAINTX {}".format(value))
             elif key == 'center_frequency':
                 self._query_and_check_response("SYSTEM:SETUP:CENTERFREQUENCY {}".format(value))
+            elif key == 'bandwidth':
+                # Setting the bandwidth property was introduced in 3.0.0b3
+                if self.rtms_version >= Version('3.0.0b3'):
+                    self._query_and_check_response("SYSTEM:SETUP:BANDWIDTH {}".format(value))
+                else:
+                    raise KeyError('Invalid keyword argument: "{}"\n'
+                                   'The bandwidth property is only valid in KT-RTMS versions 3.0.0b3 and later'
+                                   .format(key))
             elif key == 'sensor_eirp':
                 self._query_and_check_response("SYSTEM:SETUP:EXPECTEDEIRP {}".format(value))
             else:
