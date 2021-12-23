@@ -82,15 +82,15 @@ class RtmsScpiCommunication(base_communication.RtmsBaseCommunication):
     def configure_system(self, **kwargs):
         for key, value in kwargs.items():
             if key == 'setup_distance':
-                self._query_and_check_response("SYSTEM:ANTDIST {}".format(value))
+                self._query_and_check_response("SYSTEM:SETUP:ANTDIST {}".format(value))
             elif key == 'antenna_gain_rx':
-                self._query_and_check_response("SYSTEM:ANTGAINRX {}".format(value))
+                self._query_and_check_response("SYSTEM:SETUP:ANTGAINRX {}".format(value))
             elif key == 'antenna_gain_tx':
-                self._query_and_check_response("SYSTEM:ANTGAINTX {}".format(value))
+                self._query_and_check_response("SYSTEM:SETUP:ANTGAINTX {}".format(value))
             elif key == 'center_frequency':
-                self._query_and_check_response("SYSTEM:CENTERFREQUENCY {}".format(value))
+                self._query_and_check_response("SYSTEM:SETUP:CENTERFREQUENCY {}".format(value))
             elif key == 'sensor_eirp':
-                self._query_and_check_response("SYSTEM:EXPECTEDEIRP {}".format(value))
+                self._query_and_check_response("SYSTEM:SETUP:EXPECTEDEIRP {}".format(value))
             else:
                 raise KeyError('Invalid keyword argument: "{}"'.format(key))
 
